@@ -1,5 +1,6 @@
 // LTeX: enabled=false
 #import "@preview/dhbw-oderso:2.4.1": caption-with-source, dhbw-ka-adapter
+#import "@preview/lilaq:0.6.0" as lq
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 
@@ -100,3 +101,4 @@
 #include "chapters/references_citations.typ"
 #include "chapters/reference_management.typ"
 #include "chapters/conclusion.typ"
+#include "chapters/boxplot.typ"
