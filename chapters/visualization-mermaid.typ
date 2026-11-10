@@ -30,18 +30,16 @@ numbered, listed, and referenceable like any other illustration. The
 ```typ
 #import "visualization-helpers.typ": mermaid-figure
 #mermaid-figure(
-  [Order processing workflow],
-  "flowchart TD
-    A[Receive order] --> B{In stock?}
-    B -->|yes| C[Ship order]
-    B -->|no| D[Restock]
-    D --> B",
-  label: <fig-order-flow>,
+  [Build pipeline stages],
+  "flowchart LR
+    A[Compile] --> B[Test]
+    B --> C[Deploy]",
+  label: <fig-pipeline>,
 )
 ```
 
-This produces a numbered figure you can reference with `@fig-order-flow`, as
-shown by the flowchart in @fig-order-flow below. Pass an optional
+This produces a numbered figure you can reference with its label — for example
+the flowchart in @fig-order-flow below. Pass an optional
 `source: [@key]` to add a citation after the caption (routed through
 `caption-with-source` so it does not disturb IEEE outline sorting), and `width`
 to control the rendered size.
@@ -63,7 +61,7 @@ relationships between them. The arrow `<|--` means "inherits from": a `Dog`
 *is an* `Animal`.
 
 #mermaid-preview(
-  [A UML class diagram],
+  [Class Diagram with Mermaid: inheritance between Animal and Dog],
   "classDiagram
   class Animal {
     +String name
@@ -82,7 +80,7 @@ A `flowchart` describes a process. `TD` lays it out top-down; `[...]` is a
 step, `{...}` a decision, and the arrow labels (`|yes|`) annotate the branches.
 
 #mermaid-preview(
-  [A flowchart with a decision],
+  [Flowchart with Mermaid: order handling with a stock-check decision],
   "flowchart TD
   A[Receive order] --> B{In stock?}
   B -->|yes| C[Ship order]
@@ -98,7 +96,7 @@ An `erDiagram` models how database entities relate. The crow's-foot notation
 `||--o{` reads "one customer places zero or more orders".
 
 #mermaid-preview(
-  [An entity-relationship diagram],
+  [Entity-Relationship Diagram with Mermaid: customers, orders and line items],
   "erDiagram
   CUSTOMER ||--o{ ORDER : places
   ORDER ||--|{ LINE_ITEM : contains
@@ -120,7 +118,7 @@ a compact way to write sequence diagrams. Each line is one message from a
 sender to a receiver.
 
 #mermaid-preview(
-  [A ZenUML sequence diagram],
+  [ZenUML Sequence Diagram with Mermaid: draft submission and feedback],
   "zenuml
   Student->Supervisor: Submit draft
   Supervisor->Student: Return feedback",

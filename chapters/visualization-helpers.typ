@@ -1,5 +1,5 @@
 #import "@preview/dhbw-oderso:2.4.1": tablefigure, caption-with-source
-#import "@preview/merman:0.1.0": mermaid
+#import "@preview/merman:0.1.0": mermaid, mermaid-svg
 #import "@preview/lilaq:0.6.0" as lq
 
 // Black-and-white Mermaid palette: black borders, lines and text on white
@@ -28,10 +28,16 @@
   edgeLabelBackground: "#ffffff",
   defaultLinkColor: "#000000",
   classText: "#000000",
+  // ER attribute rows: force both to white. Mermaid's "base" theme otherwise
+  // tints the even rows a pale beige that is not grayscale-neutral, and the
+  // `attributeBackgroundColorEven` key does not reliably override it, so we set
+  // a flat white fill for every row instead.
   attributeBackgroundColorOdd: "#ffffff",
-  attributeBackgroundColorEven: "#f2f2f2",
+  attributeBackgroundColorEven: "#ffffff",
   actorBkg: "#ffffff",
   actorBorder: "#000000",
+  // Sequence/ZenUML lifelines default to yellow in the base theme; pin to black.
+  actorLineColor: "#000000",
   actorTextColor: "#000000",
   signalColor: "#000000",
   signalTextColor: "#000000",
@@ -40,9 +46,33 @@
   noteTextColor: "#000000",
 )
 
-// Renders a Mermaid diagram in the black-and-white IEEE palette. Thin wrapper
-// around `mermaid(...)` that applies `mermaid-bw-theme` on top of Mermaid's
-// "base" theme; pass `theme: none` for Mermaid's default colors.
+// Strips the color tints Mermaid bakes directly into the SVG as inline fills
+// and strokes. Even with a fully black-and-white theme, Mermaid's "base" theme
+// hardcodes a pale yellow (#fff4dd) behind ER attribute rows and derives tinted
+// hsl() fills/strokes that neither theme variables nor scoped CSS override in
+// this renderer. We rewrite the generated SVG string before embedding it:
+//   - the yellow fill and every hsl() *fill*   -> white  (surfaces stay light)
+//   - every hsl() *stroke*                      -> black  (borders stay visible)
+// This is the only reliable way to keep diagrams grayscale-neutral for IEEE.
+#let _mermaid-bw-svg-string(src, theme) = {
+  let s = mermaid-svg(
+    src,
+    background: none,
+    base-theme: if theme == none { none } else { "base" },
+    theme: theme,
+  )
+  s = s.replace("#fff4dd", "#ffffff")
+  s = s.replace(regex("fill:hsl\\([^)]*\\)"), "fill:#ffffff")
+  s = s.replace(regex("stroke:hsl\\([^)]*\\)"), "stroke:#000000")
+  s = s.replace(regex("fill=\"hsl\\([^)]*\\)\""), "fill=\"#ffffff\"")
+  s = s.replace(regex("stroke=\"hsl\\([^)]*\\)\""), "stroke=\"#000000\"")
+  s
+}
+
+// Renders a Mermaid diagram in the black-and-white IEEE palette. Applies
+// `mermaid-bw-theme` on top of Mermaid's "base" theme, then runs the generated
+// SVG through `_mermaid-bw-svg-string` to remove any residual baked-in tints.
+// Pass `theme: none` for Mermaid's default colors (skips the BW post-processing).
 //
 // `scale` resizes the *rendered* diagram, not the box around it. `merman`
 // places the SVG with `fit: "contain"`, so a `width`/`height` larger than the
@@ -51,19 +81,20 @@
 // `scale(reflow: true)` instead magnifies the drawn content itself and grows
 // the space it occupies with it, so `scale: 1.5` genuinely makes every diagram
 // 50% larger. This is the single knob to resize all diagrams.
-#let mermaid-bw(src, width: auto, height: auto, scale: 1, theme: mermaid-bw-theme) = std.scale(
-  x: scale * 100%,
-  y: scale * 100%,
-  reflow: true,
-  mermaid(
-    src,
-    background: none,
-    width: width,
-    height: height,
-    base-theme: if theme == none { none } else { "base" },
-    theme: theme,
-  ),
-)
+#let mermaid-bw(src, width: auto, height: auto, scale: 1, theme: mermaid-bw-theme) = {
+  let img = if theme == none {
+    // Default colored theme: render as-is, no grayscale rewriting.
+    mermaid(src, background: none, width: width, height: height, base-theme: none)
+  } else {
+    image(
+      bytes(_mermaid-bw-svg-string(src, theme)),
+      format: "svg",
+      width: width,
+      height: height,
+    )
+  }
+  std.scale(x: scale * 100%, y: scale * 100%, reflow: true, img)
+}
 
 // Local copy of the `typst-preview` helper (originally in basic_formatting.typ)
 // so the visualization chapter also compiles standalone without the template

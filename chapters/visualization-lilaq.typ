@@ -24,7 +24,7 @@ speeds in `x` and the braking distances in `y`, then hand them to `lq.plot`:
   width: 5cm, height: 3cm,
   title: [Braking distance],
   xlabel: [Speed $x$], ylabel: [Distance $y$],
-  lq.plot(x, y),
+  lq.plot(x, y, color: black),
 )",
 )
 
@@ -41,7 +41,7 @@ size, and `lq.scatter` draws one marker per pair:
   width: 5cm, height: 3cm,
   title: [Height vs. shoe size],
   xlabel: [Height $x$], ylabel: [Shoe size $y$],
-  lq.scatter(x, y),
+  lq.scatter(x, y, color: black),
 )",
 )
 
@@ -60,7 +60,7 @@ bar example compares the revenue of four quarters: `x` numbers the quarters,
   width: 5cm, height: 3cm,
   title: [Revenue per quarter],
   xlabel: [Quarter $x$], ylabel: [Revenue $y$],
-  lq.bar(x, y),
+  lq.bar(x, y, fill: luma(80%), stroke: black),
 )",
 )
 
@@ -76,7 +76,7 @@ corresponding power of two ($y = 2^x$).
   width: 5cm, height: 3cm,
   title: [Powers of two],
   xlabel: [Index $x$], ylabel: [Value $y$],
-  lq.stem(x, y),
+  lq.stem(x, y, color: black),
 )",
 )
 
@@ -97,7 +97,7 @@ measurement uncertainty of each value:
   width: 5cm, height: 3cm,
   title: [Daily temperature],
   xlabel: [Day $x$], ylabel: [Temp. $y$],
-  lq.plot(x, y, yerr: err),
+  lq.plot(x, y, yerr: err, color: black),
 )",
 )
 
@@ -110,7 +110,10 @@ function `(x, y) => value`.
 #typst-preview(
   "Colormesh with lilaq",
   "#import \"@preview/lilaq:0.6.0\" as lq
-// z = sin(x)·cos(y) over a 40×40 grid
+// z = sin(x)·cos(y) over a 40×40 grid.
+// `map` overrides lilaq's default Viridis colormap with a black-to-white
+// ramp so the heatmap stays legible in grayscale print (IEEE requirement:
+// no information encoded through color/hue alone).
 #lq.diagram(
   width: 4cm, height: 3cm,
   title: [sin(x)·cos(y)],
@@ -119,6 +122,7 @@ function `(x, y) => value`.
     lq.linspace(-3, 3, num: 40),
     lq.linspace(-3, 3, num: 40),
     (x, y) => calc.sin(x) * calc.cos(y),
+    map: (luma(0%), luma(100%)),
   ),
 )",
 )
@@ -161,25 +165,23 @@ Rather than assembling an `lq.diagram` by hand, this template provides a
 #link("https://typst.app/docs/reference/model/figure/")[figure] in the
 black-and-white IEEE palette (white box, black outline, median, whiskers and
 outliers), so distributions stay legible in grayscale print. You pass the data
-directly through `values`:
+directly through `values`. The preview below shows the underlying `lq.boxplot`
+call next to its rendered output:
 
-#figure(
-  caption: [Rendering a boxplot from in-line values],
-  kind: image,
-)[```typ
-#import "visualization-helpers.typ": boxplot-figure
-#boxplot-figure(
-  [Exam scores],
-  values: (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
+#typst-preview(
+  "Boxplot with lilaq (in-line values)",
+  "#import \"@preview/lilaq:0.6.0\" as lq
+#let scores = (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84)
+#lq.diagram(
+  width: 3.5cm, height: 6cm,
+  title: [Exam scores],
   xlabel: [Class $x$], ylabel: [Points $y$],
-)
-```]
-
-#boxplot-figure(
-  [Exam scores],
-  values: (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
-  xlabel: [Class $x$], ylabel: [Points $y$],
-  label: <boxplot-hardcoded>,
+  xlim: (0, 2),
+  lq.boxplot(scores, x: 1, width: 0.6,
+    fill: luma(92%), stroke: black,
+    median: 1.5pt + black, whisker: black,
+    cap: black, outlier-stroke: black),
+)",
 )
 
 === Boxplot from Parsed JSON Data
@@ -204,30 +206,25 @@ The file `assets/data/boxplot-sample.json` holds the scores of a second exam:
 }
 ```]
 
-We let `boxplot-figure` read the file directly: pass the path through `json`
-and name the array inside it with `field` (default `"scores"`). The helper
-calls Typst's built-in `json()` for you, so no manual loading is needed. Paths
-are resolved relative to `visualization-helpers.typ`, which lives in
-`chapters/`, so we go up one level with `../assets/...`:
+We read the file with Typst's built-in `json()` and feed the `scores` array
+straight into `lq.boxplot`. Paths are resolved relative to the file doing the
+reading, which lives in `chapters/`, so we go up one level with `../assets/...`.
+The preview shows the loading code next to its output:
 
-#figure(
-  caption: [Rendering a boxplot straight from a JSON file],
-  kind: image,
-)[```typ
-#import "visualization-helpers.typ": boxplot-figure
-#boxplot-figure(
-  [Math Exam B],
-  json: "../assets/data/boxplot-sample.json",
-  field: "scores",
+#typst-preview(
+  "Boxplot with lilaq (parsed from JSON)",
+  "#import \"@preview/lilaq:0.6.0\" as lq
+#let data = json(\"../assets/data/boxplot-sample.json\")
+#lq.diagram(
+  width: 3.5cm, height: 6cm,
+  title: [#data.exam],
   xlabel: [Class $x$], ylabel: [Points $y$],
-)
-```]
-
-#boxplot-figure(
-  [Math Exam B],
-  json: "../assets/data/boxplot-sample.json",
-  field: "scores",
-  xlabel: [Class $x$], ylabel: [Points $y$],
+  xlim: (0, 2),
+  lq.boxplot(data.scores, x: 1, width: 0.6,
+    fill: luma(92%), stroke: black,
+    median: 1.5pt + black, whisker: black,
+    cap: black, outlier-stroke: black),
+)",
 )
 
 If you need the raw data elsewhere, you can still load it yourself: Typst's
@@ -256,11 +253,14 @@ boxplot that compares the exam scores of three parallel classes:
     xlim: (0, 4),
     xticks: ((1, [A]), (2, [B]), (3, [C])),
     lq.boxplot((82, 75, 88, 91, 68, 79, 85, 30), x: 1, width: 0.6,
-      fill: blue.lighten(60%), stroke: blue.darken(30%)),
+      fill: luma(100%), stroke: black,
+      median: 1.5pt + black, whisker: black, cap: black, outlier-stroke: black),
     lq.boxplot((70, 65, 72, 60, 68, 74, 66, 71), x: 2, width: 0.6,
-      fill: green.lighten(60%), stroke: green.darken(30%)),
+      fill: luma(80%), stroke: black,
+      median: 1.5pt + black, whisker: black, cap: black, outlier-stroke: black),
     lq.boxplot((90, 94, 88, 92, 85, 96, 89, 91), x: 3, width: 0.6,
-      fill: orange.lighten(60%), stroke: orange.darken(30%)),
+      fill: luma(60%), stroke: black,
+      median: 1.5pt + black, whisker: black, cap: black, outlier-stroke: black),
   ),
   caption: [Exam scores of three parallel classes compared],
 )
