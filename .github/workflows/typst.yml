@@ -1,0 +1,73 @@
+name: Compile Typst documents
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Check whether the dhbw-oderso template version used in the sources
+  # matches the latest version published on Typst Universe.
+  template-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare used template version against latest release
+        run: |
+          set -euo pipefail
+
+          # Version currently imported in the sources (@preview/dhbw-oderso:X.Y.Z)
+          USED=$(grep -rhoE '@preview/dhbw-oderso:[0-9]+\.[0-9]+\.[0-9]+' \
+            main-dhbw-ka.typ main-dhbw-ma.typ main-ihk.typ \
+            | sed -E 's/.*:([0-9]+\.[0-9]+\.[0-9]+)/\1/' | sort -u)
+
+          echo "Used version(s): $USED"
+          if [ "$(echo "$USED" | wc -l)" -ne 1 ]; then
+            echo "::error::Inconsistent dhbw-oderso versions across main documents."
+            exit 1
+          fi
+
+          # Latest version published in the Typst packages registry
+          LATEST=$(curl -fsSL \
+            "https://api.github.com/repos/typst/packages/contents/packages/preview/dhbw-oderso" \
+            | grep -oE '"name": "[0-9]+\.[0-9]+\.[0-9]+"' \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
+
+          echo "Latest published version: $LATEST"
+
+          if [ "$USED" = "$LATEST" ]; then
+            echo "✅ Template is up to date ($USED)."
+          else
+            echo "::error::dhbw-oderso $USED is outdated. Latest is $LATEST."
+            exit 1
+          fi
+
+  compile:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        document:
+          - main-dhbw-ka
+          - main-dhbw-ma
+          - main-ihk
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v4
+
+      - name: Compile ${{ matrix.document }}.typ
+        run: typst compile "${{ matrix.document }}.typ" "${{ matrix.document }}.pdf"
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.document }}
+          path: ${{ matrix.document }}.pdf
+          if-no-files-found: error
