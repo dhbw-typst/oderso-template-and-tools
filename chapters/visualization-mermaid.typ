@@ -1,4 +1,5 @@
 #import "visualization-helpers.typ": mermaid-preview, mermaid-figure, typst-preview
+#import "@preview/merman:0.1.0": mermaid
 
 == Diagrams with Mermaid
 
@@ -31,13 +32,13 @@ the call on the left and the numbered figure it produces on the right:
 
 #typst-preview(
   "Rendering a numbered figure with mermaid-figure",
-  "#import \"visualization-helpers.typ\": mermaid-figure
-#mermaid-figure(
+  "#mermaid-figure(
   [Build pipeline stages],
   \"flowchart LR
     A[Compile] --> B[Test]
     B --> C[Deploy]\",
 )",
+  scope: (mermaid-figure: mermaid-figure),
 )
 
 Pass an optional `label: <my-fig>` to make the figure referenceable with

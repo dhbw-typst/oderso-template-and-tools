@@ -17,8 +17,7 @@ speeds in `x` and the braking distances in `y`, then hand them to `lq.plot`:
 
 #typst-preview(
   "Line Plot with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let x = (50, 70, 90, 110, 130)       // speed in km/h
+  "#let x = (50, 70, 90, 110, 130)       // speed in km/h
 #let y = (12.5, 24.5, 40.5, 60.5, 84.5)  // braking distance in m
 #lq.diagram(
   width: 5cm, height: 3cm,
@@ -27,6 +26,7 @@ speeds in `x` and the braking distances in `y`, then hand them to `lq.plot`:
   lq.plot(x, y, color: black),
 )",
   wrap-figure: true,
+  scope: (lq: lq),
 )
 
 For a scatter plot the idea is the same, but the points need not follow a
@@ -35,8 +35,7 @@ size, and `lq.scatter` draws one marker per pair:
 
 #typst-preview(
   "Scatter Plot with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let x = (160, 170, 175, 180, 190)  // height in cm
+  "#let x = (160, 170, 175, 180, 190)  // height in cm
 #let y = (38, 41, 42, 44, 46)       // shoe size
 #lq.diagram(
   width: 5cm, height: 3cm,
@@ -45,6 +44,7 @@ size, and `lq.scatter` draws one marker per pair:
   lq.scatter(x, y, color: black),
 )",
   wrap-figure: true,
+  scope: (lq: lq),
 )
 
 === Bar and Stem Plots
@@ -55,8 +55,7 @@ bar example compares the revenue of four quarters: `x` numbers the quarters,
 
 #typst-preview(
   "Bar Plot with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let x = (1, 2, 3, 4)            // quarter
+  "#let x = (1, 2, 3, 4)            // quarter
 #let y = (30, 45, 38, 52)        // revenue in k€
 #lq.diagram(
   width: 5cm, height: 3cm,
@@ -65,6 +64,7 @@ bar example compares the revenue of four quarters: `x` numbers the quarters,
   lq.bar(x, y, fill: luma(80%), stroke: black),
 )",
   wrap-figure: true,
+  scope: (lq: lq),
 )
 
 The stem plot below shows a discrete sequence: `x` is the index and `y` the
@@ -72,8 +72,7 @@ corresponding power of two ($y = 2^x$).
 
 #typst-preview(
   "Stem Plot with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let x = (0, 1, 2, 3, 4)
+  "#let x = (0, 1, 2, 3, 4)
 #let y = (1, 2, 4, 8, 16)        // powers of two
 #lq.diagram(
   width: 5cm, height: 3cm,
@@ -82,6 +81,7 @@ corresponding power of two ($y = 2^x$).
   lq.stem(x, y, color: black),
 )",
   wrap-figure: true,
+  scope: (lq: lq),
 )
 
 === Error Bars
@@ -97,8 +97,7 @@ data point. In this example `x` is the day, `y` the measured temperature, and
 
 #typst-preview(
   "Error Bars with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let x = (1, 2, 3, 4, 5, 6)              // day
+  "#let x = (1, 2, 3, 4, 5, 6)              // day
 #let y = (18, 21, 19, 23, 22, 25)        // temperature in °C
 #let err = (1, 1, .7, .8, .2, .6)        // uncertainty
 #lq.diagram(
@@ -108,6 +107,7 @@ data point. In this example `x` is the day, `y` the measured temperature, and
   lq.plot(x, y, yerr: err, color: black),
 )",
   wrap-figure: true,
+  scope: (lq: lq),
 )
 
 === Heatmaps and Contours
@@ -127,8 +127,7 @@ time of day, the same idea as the activity graph on a code-hosting site:
 
 #typst-preview(
   "Heatmap with lilaq: commit activity by weekday and time of day",
-  "#import \"visualization-helpers.typ\": heatmap-figure
-// Rows are weekdays, columns are times of day; each cell is a commit count.
+  "// Rows are weekdays, columns are times of day; each cell is a commit count.
 #heatmap-figure(
   [Commit activity],
   (
@@ -143,33 +142,12 @@ time of day, the same idea as the activity graph on a code-hosting site:
   xlabel: [Time of day], ylabel: [Weekday],
   cbar-label: [Commits],
 )",
+  scope: (heatmap-figure: heatmap-figure),
 )
 
 Under the hood the helper calls `lq.colormesh` for the cells and `lq.colorbar`
 for the legend. If your surface follows a formula rather than a fixed table,
 `lq.colormesh` also accepts a function `(x, y) => value` in place of the array.
-
-=== Vector Fields
-
-`lq.quiver(x, y, directions)` draws a field of arrows. The `directions`
-argument is a function returning a `(dx, dy)` vector for each grid point.
-
-#typst-preview(
-  "Vector field with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-// Rotating field: each arrow points (x+y, y-x)
-#lq.diagram(
-  width: 4cm, height: 4cm,
-  title: [Vector field],
-  xlabel: [Position $x$], ylabel: [Position $y$],
-  lq.quiver(
-    lq.arange(-2, 3),
-    lq.arange(-2, 3),
-    (x, y) => (x + y, y - x),
-  ),
-)",
-  wrap-figure: true,
-)
 
 === Boxplot with Hardcoded Values
 
@@ -192,13 +170,22 @@ through `values` and get the figure back, numbered and referenceable:
 
 #typst-preview(
   "Boxplot with lilaq (via the boxplot-figure helper)",
-  "#import \"visualization-helpers.typ\": boxplot-figure
-#boxplot-figure(
-  [Exam scores],
-  values: (82, 75, 88, 91, 68, 79,
-           85, 72, 95, 30, 77, 84),
-  xlabel: [Class $x$], ylabel: [Points $y$],
+  "// Two groups side by side. Remove one lq.boxplot call to show a single one.
+#figure(
+  lq.diagram(
+    width: 5.5cm, height: 6cm,
+    title: [Exam scores by class],
+    xlabel: [Class $x$], ylabel: [Points $y$],
+    xlim: (0, 3),
+    xaxis: (ticks: ((1, [A]), (2, [B]))),
+    lq.boxplot((82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
+               x: 1, width: 0.6, median: 1.5pt + black),
+    lq.boxplot((70, 65, 72, 60, 68, 74, 66, 71, 69, 73, 67, 75),
+               x: 2, width: 0.6, median: 1.5pt + black),
+  ),
+  caption: [Exam scores of two classes],
 )",
+  scope: (lq: lq),
 )
 
 === Boxplot from Parsed JSON Data
@@ -230,19 +217,16 @@ The preview shows the loading code next to its output:
 
 #typst-preview(
   "Boxplot with lilaq (parsed from JSON)",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let data = json(\"../assets/data/boxplot-sample.json\")
+  "#let data = json(\"../assets/data/boxplot-sample.json\")
 #lq.diagram(
   width: 3.5cm, height: 6cm,
   title: [#data.exam],
   xlabel: [Class $x$], ylabel: [Points $y$],
   xlim: (0, 2),
-  lq.boxplot(data.scores, x: 1, width: 0.6,
-    fill: luma(92%), stroke: 1pt + black,
-    median: 1.5pt + black, whisker: black,
-    cap: black, outlier-stroke: black),
+  lq.boxplot(data.scores, x: 1, width: 0.6, median: 1.5pt + black),
 )",
   wrap-figure: true,
+  scope: (lq: lq),
 )
 
 If you need the raw data elsewhere, you can still load it yourself: Typst's

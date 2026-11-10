@@ -1,5 +1,6 @@
 #import "@preview/dhbw-oderso:2.4.1": tablefigure, caption-with-source
 #import "@preview/merman:0.1.0": mermaid, mermaid-svg
+#import "@preview/diagraph:0.3.8": render as _diagraph-render
 #import "@preview/lilaq:0.6.0" as lq
 
 // Body font of the dhbw-oderso template. Mermaid diagrams default to a
@@ -161,7 +162,7 @@
 // Leave it `false` (default) for code/text output, and for code that already
 // builds its own figure (e.g. the `boxplot-figure`/`heatmap-figure` helpers),
 // which would otherwise be double-wrapped.
-#let typst-preview(caption, typst-code, wrap-figure: false) = tablefigure(
+#let typst-preview(caption, typst-code, wrap-figure: false, scope: (:)) = tablefigure(
   caption: caption,
   columns: 2,
   align: (_, row) => if row == 0 { center } else { horizon + left },
@@ -170,7 +171,7 @@
     align(horizon, box(width: 100%, raw(typst-code, lang: "typ", block: true))),
     box(width: 100%, {
       set heading(outlined: false)
-      let output = eval(typst-code, mode: "markup")
+      let output = eval(typst-code, mode: "markup", scope: scope)
       if wrap-figure {
         figure(output, caption: caption, kind: image)
       } else {
@@ -433,3 +434,54 @@
   )
   if label == none { fig } else { [#fig #label] }
 }
+
+// Wraps diagraph's `render` with the document body font baked in, so call
+// sites only need to pass the graph structure without font boilerplate.
+#let render-graph(dot, width: auto) = _diagraph-render(
+  "graph _wrap {
+  graph [fontname=\"" + body-font + "\" fontsize=13]
+  node  [fontname=\"" + body-font + "\" fontsize=13]
+  edge  [fontname=\"" + body-font + "\" fontsize=12]
+  " + dot + "
+}",
+  width: width,
+)
+
+// Like `render-graph` but for directed graphs (digraph).
+#let render-digraph(dot, width: auto) = _diagraph-render(
+  "digraph _wrap {
+  graph [fontname=\"" + body-font + "\" fontsize=13]
+  node  [fontname=\"" + body-font + "\" fontsize=13]
+  edge  [fontname=\"" + body-font + "\" fontsize=12]
+  " + dot + "
+}",
+  width: width,
+)
+
+// Shows DOT markup on the left and the rendered graph on the right.
+// Pass the inner DOT body only (no `digraph { ... }` wrapper, no font
+// declarations) — the helper adds the wrapper and font defaults so the
+// displayed code stays minimal. `directed: true` (default) uses `digraph`;
+// pass `directed: false` for undirected graphs. Pass `title` to wrap the
+// output in a numbered `#figure`.
+#let diagraph-preview(caption, dot, directed: true, width: auto, title: none) = tablefigure(
+  caption: caption,
+  columns: (1fr, 1fr),
+  align: (_, row) => if row == 0 { center } else { horizon + left },
+  table-content: (
+    table.header([DOT Source], [Output]),
+    align(horizon, box(width: 100%, raw(dot, lang: "dot", block: true))),
+    box(width: 100%, align(center,
+      if title == none {
+        if directed { render-digraph(dot, width: width) }
+        else        { render-graph(dot, width: width)   }
+      } else {
+        figure(
+          if directed { render-digraph(dot, width: width) }
+          else        { render-graph(dot, width: width)   },
+          caption: title,
+        )
+      }
+    )),
+  ),
+)
