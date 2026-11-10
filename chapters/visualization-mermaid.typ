@@ -72,6 +72,7 @@ relationships between them. The arrow `<|--` means "inherits from": a `Dog`
     +fetch()
   }
   Animal <|-- Dog",
+  title: [Class diagram],
 )
 
 === Flowchart
@@ -90,6 +91,7 @@ enlarges a diagram (1 is native size, the default).
   D --> B",
   reference: "fig-order-flow",
   scale: 1.5,
+  title: [Order handling],
 )
 
 === Entity-Relationship Diagram
@@ -110,6 +112,7 @@ An `erDiagram` models how database entities relate. The crow's-foot notation
     int id
     date created
   }",
+  title: [Customer orders],
 )
 
 === ZenUML Sequence Diagram
@@ -123,4 +126,5 @@ sender to a receiver.
   "zenuml
   Student->Supervisor: Submit draft
   Supervisor->Student: Return feedback",
+  title: [Draft feedback],
 )
