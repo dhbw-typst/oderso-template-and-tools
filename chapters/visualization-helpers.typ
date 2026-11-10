@@ -46,14 +46,23 @@
   noteTextColor: "#000000",
 )
 
-// Strips the color tints Mermaid bakes directly into the SVG as inline fills
-// and strokes. Even with a fully black-and-white theme, Mermaid's "base" theme
-// hardcodes a pale yellow (#fff4dd) behind ER attribute rows and derives tinted
-// hsl() fills/strokes that neither theme variables nor scoped CSS override in
-// this renderer. We rewrite the generated SVG string before embedding it:
-//   - the yellow fill and every hsl() *fill*   -> white  (surfaces stay light)
-//   - every hsl() *stroke*                      -> black  (borders stay visible)
+// Strips the color tints Mermaid bakes directly into the SVG as inline colors.
+// Even with a fully black-and-white theme, Mermaid's "base" theme hardcodes a
+// pale yellow (#fff4dd) behind ER attribute rows and derives tinted hsl()/rgb()
+// colors that neither theme variables nor scoped CSS override in this renderer.
+// We rewrite the generated SVG string before embedding it:
+//   - surface colors (fill, background-color, stop-color) -> white
+//   - line colors    (stroke)                             -> black
 // This is the only reliable way to keep diagrams grayscale-neutral for IEEE.
+//
+// The replacements are generated from a small table rather than written out by
+// hand. For each property we cover both forms the color can take in an SVG —
+// the CSS style `prop:hsl(...)` and the XML attribute `prop="hsl(...)"` — in one
+// pass. `(?i)` makes the match case-insensitive and `(?:hsl|rgb)a?` catches
+// hsl/hsla/rgb/rgba, so a future Mermaid update that switches notation does not
+// silently reintroduce color. `background-color` and `stop-color` are included
+// because Mermaid emits those for cluster backgrounds and gradient stops; the
+// plain `fill`/`stroke` pair alone would leave them tinted.
 #let _mermaid-bw-svg-string(src, theme) = {
   let s = mermaid-svg(
     src,
@@ -62,10 +71,20 @@
     theme: theme,
   )
   s = s.replace("#fff4dd", "#ffffff")
-  s = s.replace(regex("fill:hsl\\([^)]*\\)"), "fill:#ffffff")
-  s = s.replace(regex("stroke:hsl\\([^)]*\\)"), "stroke:#000000")
-  s = s.replace(regex("fill=\"hsl\\([^)]*\\)\""), "fill=\"#ffffff\"")
-  s = s.replace(regex("stroke=\"hsl\\([^)]*\\)\""), "stroke=\"#000000\"")
+  let color-fn = "(?:hsl|rgb)a?\\([^)]*\\)"
+  // (property, replacement): surface colors become white, line colors black.
+  let rules = (
+    ("fill", "#ffffff"),
+    ("background-color", "#ffffff"),
+    ("stop-color", "#ffffff"),
+    ("stroke", "#000000"),
+  )
+  for (prop, repl) in rules {
+    // CSS style form, e.g. `fill:hsl(...)`
+    s = s.replace(regex("(?i)" + prop + ":" + color-fn), prop + ":" + repl)
+    // XML attribute form, e.g. `fill="hsl(...)"`
+    s = s.replace(regex("(?i)" + prop + "=\"" + color-fn + "\""), prop + "=\"" + repl + "\"")
+  }
   s
 }
 
