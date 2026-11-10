@@ -153,7 +153,15 @@
 // Local copy of the `typst-preview` helper (originally in basic_formatting.typ)
 // so the visualization chapter also compiles standalone without the template
 // entry point. Shows Typst code on the left and its rendered output on the right.
-#let typst-preview(caption, typst-code) = tablefigure(
+//
+// The preview itself is a `tablefigure`, so it is numbered in the List of
+// Tables. When the evaluated code produces a GRAPHIC that should also appear in
+// the List of Figures as a numbered "Figure N", pass `wrap-figure: true`: the
+// output cell is then wrapped in a real `#figure` carrying the same caption.
+// Leave it `false` (default) for code/text output, and for code that already
+// builds its own figure (e.g. the `boxplot-figure`/`heatmap-figure` helpers),
+// which would otherwise be double-wrapped.
+#let typst-preview(caption, typst-code, wrap-figure: false) = tablefigure(
   caption: caption,
   columns: 2,
   align: (_, row) => if row == 0 { center } else { horizon + left },
@@ -162,7 +170,12 @@
     align(horizon, box(width: 100%, raw(typst-code, lang: "typ", block: true))),
     box(width: 100%, {
       set heading(outlined: false)
-      eval(typst-code, mode: "markup")
+      let output = eval(typst-code, mode: "markup")
+      if wrap-figure {
+        figure(output, caption: caption, kind: image)
+      } else {
+        output
+      }
     }),
   ),
 )
@@ -175,11 +188,13 @@
 // multiplier forwarded to `mermaid-bw` (1 = native size, 1.5 = 50% larger);
 // see the note on `mermaid-bw`.
 //
-// A small centered label is placed under the rendered diagram showing the
-// caption text, so the diagram carries a visible description of its own (the
-// lilaq previews get this for free from the plot's `title`; a bare Mermaid
-// diagram has no such title, so we add one here).
-#let mermaid-preview(caption, src, reference: none, scale: 1) = tablefigure(
+// `title` is a SHORT caption for the rendered diagram. When given, the diagram
+// is wrapped in a real `#figure`, so it is numbered as a "Figure N" in the List
+// of Figures and carries a visible caption of its own (the preview table itself
+// is a `tablefigure`, numbered separately in the List of Tables). Keep `title`
+// to a few words: the output column is narrow and a long caption would wrap
+// over many lines. Pass `none` to render the bare diagram with no figure.
+#let mermaid-preview(caption, src, reference: none, scale: 1, title: none) = tablefigure(
   caption: caption,
   reference: reference,
   columns: 2,
@@ -187,10 +202,10 @@
   table-content: (
     table.header("Mermaid Markup", "Output"),
     align(horizon, box(width: 100%, raw(src, lang: "mermaid", block: true))),
-    box(width: 100%, align(center, {
+    box(width: 100%, align(center, if title == none {
       mermaid-bw(src, scale: scale)
-      v(0.5em)
-      text(size: 0.85em, style: "italic", caption)
+    } else {
+      figure(mermaid-bw(src, scale: scale), caption: title, kind: image)
     })),
   ),
 )
@@ -297,6 +312,123 @@
         outlier-stroke: black,
       ),
     ),
+    caption: cap,
+  )
+  if label == none { fig } else { [#fig #label] }
+}
+
+// Draws a lilaq heatmap (colormesh) as a proper, numbered `#figure` in the
+// black-and-white IEEE palette (light-to-dark luma ramp, so a larger value
+// reads as a darker cell and the plot stays legible in grayscale print). A
+// matching color bar is placed next to the diagram as the legend. This wraps
+// the full `lq.colormesh` + `lq.colorbar` call so a chapter only has to pass
+// the data and labels.
+//
+//   caption: the figure caption (string or content)
+//   values:  a 2D array (rows of equal length); `values.at(r).at(c)` is the
+//            cell in row r, column c. Row 0 is drawn at the bottom.
+//   xticks / yticks: optional arrays of column / row labels (content). When
+//            given, they replace the numeric axis ticks one-for-one.
+//   title:   plot title shown above the matrix (defaults to the caption)
+//   xlabel / ylabel: axis labels
+//   cbar-label: label printed next to the color bar legend
+//   label:   optional label to reference the figure with `@label`
+//   source:  optional citation shown after the caption
+//   width / height: rendered diagram size
+#let heatmap-figure(
+  caption,
+  values,
+  xticks: none,
+  yticks: none,
+  title: auto,
+  xlabel: none,
+  ylabel: none,
+  cbar-label: none,
+  label: none,
+  source: none,
+  width: 4.5cm,
+  height: 4cm,
+) = {
+  let rows = values.len()
+  let cols = values.at(0).len()
+  let resolved-title = if title == auto { caption } else { title }
+  let xaxis = if xticks == none { (:) } else {
+    (ticks: xticks.enumerate().map(((i, l)) => (i + 1, l)))
+  }
+  let yaxis = if yticks == none { (:) } else {
+    (ticks: yticks.enumerate().map(((i, l)) => (i + 1, l)))
+  }
+  let flat = values.flatten()
+  // lilaq draws a colormesh as a raster image the size of the data grid (here
+  // just cols x rows pixels) stretched to the plot size. A 4x5-pixel image
+  // blown up to several cm is smoothed by PDF viewers, so the cells blur into a
+  // continuous gradient. We upsample each value into an f x f block, making the
+  // embedded image large enough that the cell edges stay crisp after stretch.
+  let f = 20
+  let zbig = ()
+  for row in values {
+    let big-row = ()
+    for v in row {
+      for _ in range(f) { big-row.push(v) }
+    }
+    for _ in range(f) { zbig.push(big-row) }
+  }
+  // Sample centers so logical cell c is centered on integer c and spans the
+  // half-open interval (c-0.5, c+0.5]; combined with the matching `xlim`/`ylim`
+  // below, the border cells are drawn in full and tick labels land on centers.
+  let xs = lq.linspace(0.5 + 0.5 / f, cols + 0.5 - 0.5 / f, num: cols * f)
+  let ys = lq.linspace(0.5 + 0.5 / f, rows + 0.5 - 0.5 / f, num: rows * f)
+  // `min`/`max` must be set explicitly so the color bar maps to the real range.
+  let mesh = lq.colormesh(
+    xs, ys, zbig,
+    map: (luma(100%), luma(0%)),
+    min: calc.min(..flat), max: calc.max(..flat),
+  )
+  let cap = if source == none { caption } else {
+    caption-with-source(caption, source)
+  }
+  let fig = figure(
+    {
+      // One set rule gives diagram and color bar the same height.
+      show: lq.set-diagram(height: height)
+      // A two-column grid keeps the color bar beside the diagram. Two inline
+      // boxes would wrap the bar under the diagram inside a narrow container
+      // (e.g. the right cell of a preview table); a grid never wraps, so the
+      // legend always stays to the right.
+      //
+      // Vertical alignment: the diagram's `title` (top) and `xlabel` (bottom)
+      // push its plot area inward. The color bar is itself a diagram, so we give
+      // it the SAME title and xlabel wrapped in `hide()`: that reserves exactly
+      // the same top/bottom space (not a guessed blank) without drawing them a
+      // second time, so the bar lines up precisely with the matrix. A plain
+      // blank spacer is the wrong height and leaves the bar shifted down.
+      grid(
+        columns: (auto, auto, auto),
+        column-gutter: 0.5em,
+        align: horizon,
+        lq.diagram(
+          width: width,
+          title: resolved-title,
+          xlabel: xlabel, ylabel: ylabel,
+          xlim: (0.5, cols + 0.5), ylim: (0.5, rows + 0.5),
+          xaxis: xaxis, yaxis: yaxis,
+          mesh,
+        ),
+        // cbar-label as its own column, rotated, so it sits between matrix and bar
+        if cbar-label != none {
+          rotate(-90deg, reflow: true, cbar-label)
+        },
+        // shift colorbar up and right to align its scale with the matrix plot area
+        move(
+          dx: 12pt, dy: -12pt,
+          lq.colorbar(
+            mesh,
+            title: hide(resolved-title),
+            xlabel: if xlabel == none { none } else { hide(xlabel) },
+          ),
+        ),
+      )
+    },
     caption: cap,
   )
   if label == none { fig } else { [#fig #label] }
