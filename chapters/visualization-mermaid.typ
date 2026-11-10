@@ -1,4 +1,4 @@
-#import "visualization-helpers.typ": mermaid-preview
+#import "visualization-helpers.typ": mermaid-preview, mermaid-figure
 
 == Diagrams with Mermaid
 
@@ -17,6 +17,54 @@ A single function call renders any Mermaid source:
 Passing `background: none` keeps the diagram transparent so it blends into the
 page. The helper used below shows the Mermaid source on the left and the
 rendered diagram on the right.
+
+=== Diagrams as Numbered Figures
+
+A bare `#mermaid(...)` call drops the diagram into the page as a loose image:
+it has no figure number, no entry in the "List of Figures", and cannot be
+cross-referenced. For a scientific thesis, every diagram should instead be a
+proper #link("https://typst.app/docs/reference/model/figure/")[figure] so it is
+numbered, listed, and referenceable like any other illustration. The
+`mermaid-figure` helper wraps the diagram accordingly:
+
+```typ
+#import "visualization-helpers.typ": mermaid-figure
+#mermaid-figure(
+  [Order processing workflow],
+  "flowchart TD
+    A[Receive order] --> B{In stock?}
+    B -->|yes| C[Ship order]
+    B -->|no| D[Restock]
+    D --> B",
+  label: <fig-order-flow>,
+)
+```
+
+This produces a numbered figure you can reference with `@fig-order-flow`, as
+shown in @fig-order-flow. Pass an optional `source: [@key]` to add a citation
+after the caption (routed through `caption-with-source` so it does not disturb
+IEEE outline sorting), and `width` to control the rendered size.
+
+By default `mermaid-figure` renders in *black and white* rather than Mermaid's
+colored theme. This matches scientific conventions: IEEE figures, for example,
+must stay legible in grayscale and must never encode information through color
+alone. Pass `theme: none` for Mermaid's default colors, or your own theme
+variable map to override individual values.
+
+#mermaid-figure(
+  [Order processing workflow rendered as a numbered, referenceable figure],
+  "flowchart TD
+    A[Receive order] --> B{In stock?}
+    B -->|yes| C[Ship order]
+    B -->|no| D[Restock]
+    D --> B",
+  label: <fig-order-flow>,
+  width: 7cm,
+)
+
+The side-by-side previews below show the Mermaid syntax next to its output for
+learning purposes; in an actual thesis, prefer `mermaid-figure` so each diagram
+is a proper figure.
 
 === Class Diagram
 

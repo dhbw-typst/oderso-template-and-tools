@@ -1,5 +1,5 @@
 #import "@preview/lilaq:0.6.0" as lq
-#import "visualization-helpers.typ": typst-preview
+#import "visualization-helpers.typ": typst-preview, boxplot-figure
 
 == Data-Driven Plots with lilaq
 
@@ -154,26 +154,33 @@ $= "Q3" - "Q1"$) from the box is drawn as an individual outlier point.
 
 In the simplest case, the data is written directly into the source file. Here
 the data is the exam scores (out of 100) of a class. One student clearly
-underperformed at 30 points, which shows up as an outlier below the whisker:
+underperformed at 30 points, which shows up as an outlier below the whisker.
 
-#typst-preview(
-  "Boxplot with hardcoded values",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-// Exam scores of a class (out of 100)
-#lq.diagram(
-  width: 3.5cm, height: 6cm,
-  title: [Exam scores],
+Rather than assembling an `lq.diagram` by hand, this template provides a
+`boxplot-figure` helper. It renders the boxplot as a numbered, referenceable
+#link("https://typst.app/docs/reference/model/figure/")[figure] in the
+black-and-white IEEE palette (white box, black outline, median, whiskers and
+outliers), so distributions stay legible in grayscale print. You pass the data
+directly through `values`:
+
+#figure(
+  caption: [Rendering a boxplot from in-line values],
+  kind: image,
+)[```typ
+#import "visualization-helpers.typ": boxplot-figure
+#boxplot-figure(
+  [Exam scores],
+  values: (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
   xlabel: [Class $x$], ylabel: [Points $y$],
-  xlim: (0, 2),
-  lq.boxplot(
-    (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
-    x: 1, width: 0.6,
-    fill: blue.lighten(60%),
-    stroke: blue.darken(30%),
-    median: 2pt + blue.darken(50%),
-  ),
-)",
-)<boxplot-hardcoded>
+)
+```]
+
+#boxplot-figure(
+  [Exam scores],
+  values: (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
+  xlabel: [Class $x$], ylabel: [Points $y$],
+  label: <boxplot-hardcoded>,
+)
 
 === Boxplot from Parsed JSON Data
 
