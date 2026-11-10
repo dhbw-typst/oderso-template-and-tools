@@ -75,7 +75,7 @@
 //
 // The color replacements are generated from a small table rather than written
 // out by hand. For each property we cover both forms the color can take in an
-// SVG — the CSS style `prop:hsl(...)` and the XML attribute `prop="hsl(...)"` —
+// SVG, the CSS style `prop:hsl(...)` and the XML attribute `prop="hsl(...)"`,
 // in one pass. `(?i)` makes the match case-insensitive and `(?:hsl|rgb)a?`
 // catches hsl/hsla/rgb/rgba, so a future Mermaid update that switches notation
 // does not silently reintroduce color. `background-color` and `stop-color` are
@@ -113,7 +113,7 @@
   //      end without a trailing `;`, a match class that allowed `"`/`>` would run
   //      past the attribute (and even the element) to some far-off `;`, eating
   //      real markup and producing an empty/invalid SVG. So the class also
-  //      excludes `"` and `>` — the attribute and tag boundaries.
+  //      excludes `"` and `>`, the attribute and tag boundaries.
   //
   // The replacement font name is wrapped in SINGLE quotes: raw double quotes
   // would prematurely close the surrounding `style` attribute.
@@ -130,7 +130,7 @@
 //
 // `scale` resizes the *rendered* diagram, not the box around it. `merman`
 // places the SVG with `fit: "contain"`, so a `width`/`height` larger than the
-// diagram's native size only pads the box with empty space — the diagram stays
+// diagram's native size only pads the box with empty space; the diagram stays
 // put (this is why bumping `height` earlier just grew the table row). Typst's
 // `scale(reflow: true)` instead magnifies the drawn content itself and grows
 // the space it occupies with it, so `scale: 1.5` genuinely makes every diagram
@@ -186,7 +186,7 @@
   ),
 )
 
-// Embeds a Mermaid diagram as a proper, numbered `#figure` — the form a
+// Embeds a Mermaid diagram as a proper, numbered `#figure`, the form a
 // scientific thesis needs. Unlike a bare `#mermaid(...)` call, this gives the
 // diagram a figure number, an entry in the "List of Figures", and a label so
 // it can be cross-referenced with `@label` in the running text.
@@ -200,7 +200,7 @@
 //   width:   optional rendered diagram width (defaults to `auto` = native size)
 //   height:  optional rendered diagram height (defaults to `auto` = native size)
 //   scale:   size multiplier forwarded to `mermaid-bw` (1 = native size,
-//            1.5 = 50% larger); the preferred way to resize — see `mermaid-bw`
+//            1.5 = 50% larger); the preferred way to resize, see `mermaid-bw`
 //   theme:   Mermaid theme variables; defaults to the black-and-white palette.
 //            Pass `none` for Mermaid's default colored theme.
 #let mermaid-figure(
@@ -229,7 +229,7 @@
 // Q1/Q3 (box edges) and the median (line in the box); points beyond
 // 1.5·IQR are drawn as individual outliers.
 //
-// Data comes in one of two ways — supply exactly one:
+// Data comes in one of two ways, supply exactly one:
 //   values: an array of numbers, e.g. `(82, 75, 88, 91)`
 //   json:   a path to a JSON file; `field` names the array inside it
 //           (default "scores"). Paths resolve relative to THIS helper file,

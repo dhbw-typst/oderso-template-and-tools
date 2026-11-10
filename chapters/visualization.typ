@@ -13,5 +13,12 @@ The larger plots below are wrapped in `#figure(...)` so they appear in the
 List of Figures; the small snippets use the `typst-preview` helper to show
 code and output side by side.
 
+A word before you dive in: this template is here to *support* you, not to set a
+checklist. Nobody needs every feature shown here, and reaching for one you do
+not need only adds work. A project report (Projektarbeit) in particular rarely
+calls for elaborate diagrams or statistics, and every thesis is individual to
+its topic and its department. Use the parts that help your work and leave the
+rest out with a clear conscience.
+
 #include "visualization-lilaq.typ"
 #include "visualization-mermaid.typ"

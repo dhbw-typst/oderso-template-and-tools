@@ -1,4 +1,4 @@
-#import "visualization-helpers.typ": mermaid-preview, mermaid-figure
+#import "visualization-helpers.typ": mermaid-preview, mermaid-figure, typst-preview
 
 == Diagrams with Mermaid
 
@@ -25,32 +25,24 @@ it has no figure number, no entry in the "List of Figures", and cannot be
 cross-referenced. For a scientific thesis, every diagram should instead be a
 proper #link("https://typst.app/docs/reference/model/figure/")[figure] so it is
 numbered, listed, and referenceable like any other illustration. The
-`mermaid-figure` helper wraps the diagram accordingly:
+`mermaid-figure` helper wraps the diagram accordingly. The preview below shows
+the call on the left and the numbered figure it produces on the right:
 
-```typ
-#import "visualization-helpers.typ": mermaid-figure
+#typst-preview(
+  "Rendering a numbered figure with mermaid-figure",
+  "#import \"visualization-helpers.typ\": mermaid-figure
 #mermaid-figure(
   [Build pipeline stages],
-  "flowchart LR
+  \"flowchart LR
     A[Compile] --> B[Test]
-    B --> C[Deploy]",
-  label: <fig-pipeline>,
+    B --> C[Deploy]\",
+)",
 )
-```
 
-Rendering that call produces @fig-pipeline below — a numbered figure you can
-reference with its label. Pass an optional
-`source: [@key]` to add a citation after the caption (routed through
-`caption-with-source` so it does not disturb IEEE outline sorting), and `width`
-to control the rendered size.
-
-#mermaid-figure(
-  [Build pipeline stages],
-  "flowchart LR
-    A[Compile] --> B[Test]
-    B --> C[Deploy]",
-  label: <fig-pipeline>,
-)
+Pass an optional `label: <my-fig>` to make the figure referenceable with
+`@my-fig`, and an optional `source: [@key]` to add a citation after the caption
+(routed through `caption-with-source` so it does not disturb IEEE outline
+sorting). The `width` parameter controls the rendered size.
 
 By default `mermaid-figure` renders in *black and white* rather than Mermaid's
 colored theme. This matches scientific conventions: IEEE figures, for example,

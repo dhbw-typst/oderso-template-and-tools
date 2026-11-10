@@ -82,10 +82,14 @@ corresponding power of two ($y = 2^x$).
 
 === Error Bars
 
-Uncertainties are attached directly to `lq.plot` via `yerr` (or `xerr`). The
-error can be a single constant or an array with one value per data point. In
-this example `x` is the day, `y` the measured temperature, and `err` the
-measurement uncertainty of each value:
+Uncertainties are attached directly to `lq.plot` via `yerr` (or `xerr`). An
+error bar makes the measurement uncertainty of each value visible: a point at
+18 with a bar of 1 means the true value is very likely somewhere in the range
+18 plus/minus 1, not exactly 18. This matters whenever data is measured rather
+than exact (benchmark timings, sensor readings), and scientific work usually
+expects it. The error can be a single constant or an array with one value per
+data point. In this example `x` is the day, `y` the measured temperature, and
+`err` the measurement uncertainty of each value:
 
 #typst-preview(
   "Error Bars with lilaq",
@@ -164,46 +168,18 @@ Rather than assembling an `lq.diagram` by hand, this template provides a
 `boxplot-figure` helper. It renders the boxplot as a numbered, referenceable
 #link("https://typst.app/docs/reference/model/figure/")[figure] in the
 black-and-white IEEE palette (white box, black outline, median, whiskers and
-outliers), so distributions stay legible in grayscale print. The preview below
-shows the full `lq.boxplot` call the helper wraps, next to its rendered output:
+outliers), so distributions stay legible in grayscale print. You pass the data
+through `values` and get the figure back, numbered and referenceable:
 
 #typst-preview(
-  "Boxplot with lilaq (in-line values)",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-#let scores = (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84)
-#lq.diagram(
-  width: 3.5cm, height: 6cm,
-  title: [Exam scores],
+  "Boxplot with lilaq (via the boxplot-figure helper)",
+  "#import \"visualization-helpers.typ\": boxplot-figure
+#boxplot-figure(
+  [Exam scores],
+  values: (82, 75, 88, 91, 68, 79,
+           85, 72, 95, 30, 77, 84),
   xlabel: [Class $x$], ylabel: [Points $y$],
-  xlim: (0, 2),
-  lq.boxplot(scores, x: 1, width: 0.6,
-    fill: luma(92%), stroke: 1pt + black,
-    median: 1.5pt + black, whisker: black,
-    cap: black, outlier-stroke: black),
 )",
-)
-
-In practice you do not write all that out each time. The `boxplot-figure`
-helper encapsulates exactly the call above — you pass the data through
-`values` and get the same figure, numbered and referenceable:
-
-#figure(
-  caption: [Calling the `boxplot-figure` helper],
-  kind: image,
-)[```typ
-#import "visualization-helpers.typ": boxplot-figure
-#boxplot-figure(
-  [Exam scores],
-  values: (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
-  xlabel: [Class $x$], ylabel: [Points $y$],
-)
-```]
-
-#boxplot-figure(
-  [Exam scores],
-  values: (82, 75, 88, 91, 68, 79, 85, 72, 95, 30, 77, 84),
-  xlabel: [Class $x$], ylabel: [Points $y$],
-  label: <boxplot-hardcoded>,
 )
 
 === Boxplot from Parsed JSON Data
