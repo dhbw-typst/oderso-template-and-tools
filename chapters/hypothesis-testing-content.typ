@@ -124,6 +124,7 @@ would fall for perfectly normal data, $y = overline(x) + s dot x$:
   lq.plot(theo, line-y, color: luma(50%), mark: none),
   lq.scatter(theo, sorted, color: black),
 )",
+  wrap-figure: true,
 )
 
 The points hug the reference line without any systematic bend, so treating the
