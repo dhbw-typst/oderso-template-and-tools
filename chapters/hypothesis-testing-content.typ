@@ -19,7 +19,8 @@ $ H_1: mu eq.not 500 quad "(it is miscalibrated)" $
 == Descriptive Statistics with statastic
 
 First we need the sample size $n$, the sample mean $overline(x)$ and the sample
-standard deviation $s$. The `statastic` package computes the mean and standard
+standard deviation $s$. The #link("https://typst.app/universe/package/statastic/")[*statastic*]
+package computes the mean and standard
 deviation for us; its standard deviation already uses the $n - 1$ divisor (the
 sample, not population, estimate), which is exactly what a t-test needs:
 
