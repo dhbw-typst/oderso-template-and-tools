@@ -41,26 +41,16 @@ numbered, listed, and referenceable like any other illustration. The
 ```
 
 This produces a numbered figure you can reference with `@fig-order-flow`, as
-shown in @fig-order-flow. Pass an optional `source: [@key]` to add a citation
-after the caption (routed through `caption-with-source` so it does not disturb
-IEEE outline sorting), and `width` to control the rendered size.
+shown by the flowchart in @fig-order-flow below. Pass an optional
+`source: [@key]` to add a citation after the caption (routed through
+`caption-with-source` so it does not disturb IEEE outline sorting), and `width`
+to control the rendered size.
 
 By default `mermaid-figure` renders in *black and white* rather than Mermaid's
 colored theme. This matches scientific conventions: IEEE figures, for example,
 must stay legible in grayscale and must never encode information through color
 alone. Pass `theme: none` for Mermaid's default colors, or your own theme
 variable map to override individual values.
-
-#mermaid-figure(
-  [Order processing workflow rendered as a numbered, referenceable figure],
-  "flowchart TD
-    A[Receive order] --> B{In stock?}
-    B -->|yes| C[Ship order]
-    B -->|no| D[Restock]
-    D --> B",
-  label: <fig-order-flow>,
-  width: 7cm,
-)
 
 The side-by-side previews below show the Mermaid syntax next to its output for
 learning purposes; in an actual thesis, prefer `mermaid-figure` so each diagram
@@ -83,6 +73,7 @@ relationships between them. The arrow `<|--` means "inherits from": a `Dog`
     +fetch()
   }
   Animal <|-- Dog",
+  scale: 1,
 )
 
 === Flowchart
@@ -97,6 +88,8 @@ step, `{...}` a decision, and the arrow labels (`|yes|`) annotate the branches.
   B -->|yes| C[Ship order]
   B -->|no| D[Restock]
   D --> B",
+  reference: "fig-order-flow",
+  scale: 1,
 )
 
 === Entity-Relationship Diagram
@@ -117,6 +110,7 @@ An `erDiagram` models how database entities relate. The crow's-foot notation
     int id
     date created
   }",
+  scale: 1,
 )
 
 === ZenUML Sequence Diagram
@@ -130,4 +124,5 @@ sender to a receiver.
   "zenuml
   Student->Supervisor: Submit draft
   Supervisor->Student: Return feedback",
+  scale: 1,
 )

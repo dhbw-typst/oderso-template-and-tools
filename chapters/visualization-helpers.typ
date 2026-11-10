@@ -43,12 +43,26 @@
 // Renders a Mermaid diagram in the black-and-white IEEE palette. Thin wrapper
 // around `mermaid(...)` that applies `mermaid-bw-theme` on top of Mermaid's
 // "base" theme; pass `theme: none` for Mermaid's default colors.
-#let mermaid-bw(src, width: auto, theme: mermaid-bw-theme) = mermaid(
-  src,
-  background: none,
-  width: width,
-  base-theme: if theme == none { none } else { "base" },
-  theme: theme,
+//
+// `scale` resizes the *rendered* diagram, not the box around it. `merman`
+// places the SVG with `fit: "contain"`, so a `width`/`height` larger than the
+// diagram's native size only pads the box with empty space — the diagram stays
+// put (this is why bumping `height` earlier just grew the table row). Typst's
+// `scale(reflow: true)` instead magnifies the drawn content itself and grows
+// the space it occupies with it, so `scale: 1.5` genuinely makes every diagram
+// 50% larger. This is the single knob to resize all diagrams.
+#let mermaid-bw(src, width: auto, height: auto, scale: 1, theme: mermaid-bw-theme) = std.scale(
+  x: scale * 100%,
+  y: scale * 100%,
+  reflow: true,
+  mermaid(
+    src,
+    background: none,
+    width: width,
+    height: height,
+    base-theme: if theme == none { none } else { "base" },
+    theme: theme,
+  ),
 )
 
 // Local copy of the `typst-preview` helper (originally in basic_formatting.typ)
@@ -71,15 +85,19 @@
 // Shows Mermaid markup on the left and the rendered diagram on the right,
 // using the same IEEE-styled `tablefigure` as `typst-preview` so both kinds
 // of preview render identically. Uses the black-and-white palette so previews
-// match the diagrams produced by `mermaid-figure`.
-#let mermaid-preview(caption, src) = tablefigure(
+// match the diagrams produced by `mermaid-figure`. Pass `reference` (a string)
+// to make the figure cross-referenceable with `@name`. `scale` is the size
+// multiplier forwarded to `mermaid-bw` (1 = native size, 1.5 = 50% larger);
+// see the note on `mermaid-bw`.
+#let mermaid-preview(caption, src, reference: none, scale: 1) = tablefigure(
   caption: caption,
+  reference: reference,
   columns: 2,
   align: (_, row) => if row == 0 { center } else { horizon + left },
   table-content: (
     table.header("Mermaid Markup", "Output"),
     align(horizon, box(width: 100%, raw(src, lang: "mermaid", block: true))),
-    box(width: 100%, mermaid-bw(src, width: 4.5cm)),
+    box(width: 100%, mermaid-bw(src, scale: scale)),
   ),
 )
 
@@ -94,7 +112,11 @@
 //   source:  optional citation shown after the caption, e.g. `[@smith2023]`;
 //            uses `caption-with-source` so it does not disturb IEEE outline
 //            sorting (see the note in `advanced_elements.typ`)
-//   width:   rendered diagram width (defaults to the full text column)
+//   width:   rendered diagram width (defaults to `auto`)
+//   width:   optional rendered diagram width (defaults to `auto` = native size)
+//   height:  optional rendered diagram height (defaults to `auto` = native size)
+//   scale:   size multiplier forwarded to `mermaid-bw` (1 = native size,
+//            1.5 = 50% larger); the preferred way to resize — see `mermaid-bw`
 //   theme:   Mermaid theme variables; defaults to the black-and-white palette.
 //            Pass `none` for Mermaid's default colored theme.
 #let mermaid-figure(
@@ -102,14 +124,16 @@
   src,
   label: none,
   source: none,
-  width: 100%,
+  width: auto,
+  height: auto,
+  scale: 1,
   theme: mermaid-bw-theme,
 ) = {
   let cap = if source == none { caption } else {
     caption-with-source(caption, source)
   }
   let fig = figure(
-    mermaid-bw(src, width: width, theme: theme),
+    mermaid-bw(src, width: width, height: height, scale: scale, theme: theme),
     caption: cap,
   )
   if label == none { fig } else { [#fig #label] }
