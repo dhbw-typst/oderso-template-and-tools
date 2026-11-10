@@ -4,8 +4,10 @@ Typst template for academic writing at the DHBW and for the IHK project report, 
 
 ## Prerequisites
 
-- [Typst](https://github.com/typst/typst) **0.14.2** (the project is tested with this compiler version).
+- A recent [Typst](https://github.com/typst/typst) release.
 - Internet access on the first compile: packages from the Typst Universe are downloaded automatically and cached locally afterwards.
+
+The `dhbw-oderso` version used is pinned in the `#import` line at the top of each entry point; the Typst release you need is whatever that package requires.
 
 Installing Typst (macOS):
 
@@ -43,25 +45,7 @@ Replace `main-dhbw-ka.typ` with the entry point you are using.
 
 ## Project structure
 
-```
-.
-├── main-dhbw-ka.typ      # Entry point DHBW Karlsruhe
-├── main-dhbw-ma.typ      # Entry point DHBW Mannheim
-├── main-ihk.typ          # Entry point IHK
-├── glossary.typ          # Abbreviations and glossary entries
-├── appendix.typ          # Appendix definition
-├── refs.bib              # Bibliography sources (BibTeX)
-├── chapters/             # Content chapters (included via #include)
-│   ├── introduction.typ
-│   ├── basic_formatting.typ
-│   ├── advanced_elements.typ
-│   ├── references_citations.typ
-│   ├── reference_management.typ
-│   └── conclusion.typ
-├── misc/                 # Acknowledgements, abstracts (de/en)
-├── assets/               # Logos, signatures, sample data
-└── appendix/             # Appendix content (tables etc.)
-```
+The three `main-*.typ` files are the entry points. Content chapters live in `chapters/`, with front and back matter split into `misc/` (acknowledgements, abstracts) and `appendix/`. Shared pieces sit at the root: `glossary.typ` for abbreviations and glossary entries, `appendix.typ` for the appendix definition, and `refs.bib` for the bibliography. Images, signatures and sample data are kept in `assets/`.
 
 ## How content is wired in
 
