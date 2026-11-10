@@ -1,6 +1,6 @@
 # oderso-tools
 
-A friendly starting point for your academic writing at the DHBW or your IHK project report. Instead of fighting with a blank document, you clone this repository, pick the entry point that matches your work, and start writing right away.
+A friendly starting point for your academic writing at the DHBW or your IHK project report. Instead of setting up structure and formatting from scratch, you clone this repository, pick the entry point that matches your work, and start writing right away.
 
 Everything is built on the [`dhbw-oderso`](https://typst.app/universe/package/dhbw-oderso/) template, which already handles the cover page, headers, declarations and all the formal parts. On top of that, this repository shows how to put the wider [Typst Universe](https://typst.app/universe/) to work in a real thesis. We recommend a handful of packages and demonstrate them in the chapters, with a particular focus on **visualizations**: charts, diagrams and plots that make an evaluation or results section genuinely readable rather than a wall of text.
 
