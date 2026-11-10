@@ -2,13 +2,21 @@
 #import "@preview/merman:0.1.0": mermaid, mermaid-svg
 #import "@preview/lilaq:0.6.0" as lq
 
+// Body font of the dhbw-oderso template. Mermaid diagrams default to a
+// sans-serif (`trebuchet ms`), which clashes with the serif body text; we pass
+// this through the theme's `fontFamily` so diagram labels match the surrounding
+// prose. Keep in sync with the template's `set text(font: ...)` in base.typ.
+#let body-font = "New Computer Modern"
+
 // Black-and-white Mermaid palette: black borders, lines and text on white
 // fills, with light-gray only for secondary/alternating surfaces. Covers
 // flowcharts, class, ER and sequence diagrams. IEEE figures must be legible in
 // grayscale and must not encode information through color alone, so this is the
-// default for every Mermaid diagram rendered in this template.
+// default for every Mermaid diagram rendered in this template. `fontFamily`
+// aligns diagram text with the document body font (see `body-font`).
 #let mermaid-bw-theme = (
   background: "#ffffff",
+  fontFamily: body-font,
   primaryColor: "#ffffff",
   primaryBorderColor: "#000000",
   primaryTextColor: "#000000",
@@ -46,24 +54,34 @@
   noteTextColor: "#000000",
 )
 
-// Strips the color tints Mermaid bakes directly into the SVG as inline colors.
+// Strips the color tints Mermaid bakes directly into the SVG as inline colors,
+// and forces every text element onto the document body font.
+//
 // Even with a fully black-and-white theme, Mermaid's "base" theme hardcodes a
 // pale yellow (#fff4dd) behind ER attribute rows and derives tinted hsl()/rgb()
 // colors that neither theme variables nor scoped CSS override in this renderer.
 // We rewrite the generated SVG string before embedding it:
 //   - surface colors (fill, background-color, stop-color) -> white
 //   - line colors    (stroke)                             -> black
-// This is the only reliable way to keep diagrams grayscale-neutral for IEEE.
 //
-// The replacements are generated from a small table rather than written out by
-// hand. For each property we cover both forms the color can take in an SVG —
-// the CSS style `prop:hsl(...)` and the XML attribute `prop="hsl(...)"` — in one
-// pass. `(?i)` makes the match case-insensitive and `(?:hsl|rgb)a?` catches
-// hsl/hsla/rgb/rgba, so a future Mermaid update that switches notation does not
-// silently reintroduce color. `background-color` and `stop-color` are included
-// because Mermaid emits those for cluster backgrounds and gradient stops; the
-// plain `fill`/`stroke` pair alone would leave them tinted.
-#let _mermaid-bw-svg-string(src, theme) = {
+// Likewise, the theme's `fontFamily` is honored by some diagram types (e.g.
+// flowcharts) but NOT others (class, ER, sequence diagrams hardcode
+// `"trebuchet ms",verdana,...` into the SVG), so a serif body font would end
+// up next to sans-serif diagram labels. We therefore also rewrite every
+// `font-family:<stack>` declaration to the body font directly.
+//
+// String rewriting is the only reliable way to keep diagrams grayscale-neutral
+// and typographically consistent for IEEE in this renderer.
+//
+// The color replacements are generated from a small table rather than written
+// out by hand. For each property we cover both forms the color can take in an
+// SVG — the CSS style `prop:hsl(...)` and the XML attribute `prop="hsl(...)"` —
+// in one pass. `(?i)` makes the match case-insensitive and `(?:hsl|rgb)a?`
+// catches hsl/hsla/rgb/rgba, so a future Mermaid update that switches notation
+// does not silently reintroduce color. `background-color` and `stop-color` are
+// included because Mermaid emits those for cluster backgrounds and gradient
+// stops; the plain `fill`/`stroke` pair alone would leave them tinted.
+#let _mermaid-bw-svg-string(src, theme, font) = {
   let s = mermaid-svg(
     src,
     background: none,
@@ -85,6 +103,23 @@
     // XML attribute form, e.g. `fill="hsl(...)"`
     s = s.replace(regex("(?i)" + prop + "=\"" + color-fn + "\""), prop + "=\"" + repl + "\"")
   }
+  // Force the body font onto every text element. The value is a font *stack*
+  // (`"trebuchet ms",verdana,arial,sans-serif`), and Mermaid emits the inner
+  // quotes XML-escaped as `&quot;`. Two subtleties:
+  //   1. The trailing `;` of `&quot;` would make a naive `[^;}]*` stop in the
+  //      middle of the stack, so we treat `&quot;` as an atom and consume it
+  //      whole rather than breaking on its semicolon.
+  //   2. The value lives inside a `style="..."` attribute. If a stack happens to
+  //      end without a trailing `;`, a match class that allowed `"`/`>` would run
+  //      past the attribute (and even the element) to some far-off `;`, eating
+  //      real markup and producing an empty/invalid SVG. So the class also
+  //      excludes `"` and `>` — the attribute and tag boundaries.
+  //
+  // The replacement font name is wrapped in SINGLE quotes: raw double quotes
+  // would prematurely close the surrounding `style` attribute.
+  let font-value = "(?:&quot;|[^;}\">])*"
+  s = s.replace(regex("(?i)font-family:" + font-value), "font-family:'" + font + "'")
+  s = s.replace(regex("(?i)font-family=\"[^\"]*\""), "font-family=\"" + font + "\"")
   s
 }
 
@@ -100,13 +135,13 @@
 // `scale(reflow: true)` instead magnifies the drawn content itself and grows
 // the space it occupies with it, so `scale: 1.5` genuinely makes every diagram
 // 50% larger. This is the single knob to resize all diagrams.
-#let mermaid-bw(src, width: auto, height: auto, scale: 1, theme: mermaid-bw-theme) = {
+#let mermaid-bw(src, width: auto, height: auto, scale: 1, theme: mermaid-bw-theme, font: body-font) = {
   let img = if theme == none {
     // Default colored theme: render as-is, no grayscale rewriting.
     mermaid(src, background: none, width: width, height: height, base-theme: none)
   } else {
     image(
-      bytes(_mermaid-bw-svg-string(src, theme)),
+      bytes(_mermaid-bw-svg-string(src, theme, font)),
       format: "svg",
       width: width,
       height: height,
