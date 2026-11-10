@@ -38,11 +38,19 @@ numbered, listed, and referenceable like any other illustration. The
 )
 ```
 
-This produces a numbered figure you can reference with its label — for example
-the flowchart in @fig-order-flow below. Pass an optional
+Rendering that call produces @fig-pipeline below — a numbered figure you can
+reference with its label. Pass an optional
 `source: [@key]` to add a citation after the caption (routed through
 `caption-with-source` so it does not disturb IEEE outline sorting), and `width`
 to control the rendered size.
+
+#mermaid-figure(
+  [Build pipeline stages],
+  "flowchart LR
+    A[Compile] --> B[Test]
+    B --> C[Deploy]",
+  label: <fig-pipeline>,
+)
 
 By default `mermaid-figure` renders in *black and white* rather than Mermaid's
 colored theme. This matches scientific conventions: IEEE figures, for example,
@@ -71,13 +79,14 @@ relationships between them. The arrow `<|--` means "inherits from": a `Dog`
     +fetch()
   }
   Animal <|-- Dog",
-  scale: 1,
 )
 
 === Flowchart
 
 A `flowchart` describes a process. `TD` lays it out top-down; `[...]` is a
 step, `{...}` a decision, and the arrow labels (`|yes|`) annotate the branches.
+This diagram is rendered at `scale: 1.5` to show how the size multiplier
+enlarges a diagram (1 is native size, the default).
 
 #mermaid-preview(
   [Flowchart with Mermaid: order handling with a stock-check decision],
@@ -87,7 +96,7 @@ step, `{...}` a decision, and the arrow labels (`|yes|`) annotate the branches.
   B -->|no| D[Restock]
   D --> B",
   reference: "fig-order-flow",
-  scale: 1,
+  scale: 1.5,
 )
 
 === Entity-Relationship Diagram
@@ -108,7 +117,6 @@ An `erDiagram` models how database entities relate. The crow's-foot notation
     int id
     date created
   }",
-  scale: 1,
 )
 
 === ZenUML Sequence Diagram
@@ -122,5 +130,4 @@ sender to a receiver.
   "zenuml
   Student->Supervisor: Submit draft
   Supervisor->Student: Return feedback",
-  scale: 1,
 )

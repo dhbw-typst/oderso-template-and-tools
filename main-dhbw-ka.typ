@@ -1,6 +1,5 @@
 // LTeX: enabled=false
 #import "@preview/dhbw-oderso:2.4.1": caption-with-source, dhbw-ka-adapter
-#import "@preview/lilaq:0.6.0" as lq
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 

@@ -143,7 +143,6 @@
 //   source:  optional citation shown after the caption, e.g. `[@smith2023]`;
 //            uses `caption-with-source` so it does not disturb IEEE outline
 //            sorting (see the note in `advanced_elements.typ`)
-//   width:   rendered diagram width (defaults to `auto`)
 //   width:   optional rendered diagram width (defaults to `auto` = native size)
 //   height:  optional rendered diagram height (defaults to `auto` = native size)
 //   scale:   size multiplier forwarded to `mermaid-bw` (1 = native size,
