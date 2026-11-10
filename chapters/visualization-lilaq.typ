@@ -204,33 +204,35 @@ The file `assets/data/boxplot-sample.json` holds the scores of a second exam:
 }
 ```]
 
-We load it once and access the fields like any dictionary, then feed
-`scores` straight into `lq.boxplot`. Paths are resolved relative to the file
-that contains the call. Since the chapter lives in `chapters/`, we go up one
-level with `../assets/...`:
+We let `boxplot-figure` read the file directly: pass the path through `json`
+and name the array inside it with `field` (default `"scores"`). The helper
+calls Typst's built-in `json()` for you, so no manual loading is needed. Paths
+are resolved relative to `visualization-helpers.typ`, which lives in
+`chapters/`, so we go up one level with `../assets/...`:
 
-#typst-preview(
-  "Boxplot from parsed JSON data",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-// Read the exam scores from a JSON file
-#let data = json(\"/assets/data/boxplot-sample.json\")
-#lq.diagram(
-  width: 3.5cm, height: 6cm,
-  title: data.exam,
+#figure(
+  caption: [Rendering a boxplot straight from a JSON file],
+  kind: image,
+)[```typ
+#import "visualization-helpers.typ": boxplot-figure
+#boxplot-figure(
+  [Math Exam B],
+  json: "../assets/data/boxplot-sample.json",
+  field: "scores",
   xlabel: [Class $x$], ylabel: [Points $y$],
-  xlim: (0, 2),
-  lq.boxplot(
-    data.scores,
-    x: 1, width: 0.6,
-    fill: green.lighten(60%),
-    stroke: green.darken(30%),
-    median: 2pt + green.darken(50%),
-  ),
-)",
+)
+```]
+
+#boxplot-figure(
+  [Math Exam B],
+  json: "../assets/data/boxplot-sample.json",
+  field: "scores",
+  xlabel: [Class $x$], ylabel: [Points $y$],
 )
 
-Field access works like any dictionary: `data.exam` is the title string and
-`data.scores` the array of numbers.
+If you need the raw data elsewhere, you can still load it yourself: Typst's
+`json()` returns a dictionary you access like any other. `data.exam` is the
+title string and `data.scores` the array of numbers.
 
 #figure(
   caption: [Loading data from JSON],
