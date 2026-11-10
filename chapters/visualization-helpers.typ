@@ -174,6 +174,11 @@
 // to make the figure cross-referenceable with `@name`. `scale` is the size
 // multiplier forwarded to `mermaid-bw` (1 = native size, 1.5 = 50% larger);
 // see the note on `mermaid-bw`.
+//
+// A small centered label is placed under the rendered diagram showing the
+// caption text, so the diagram carries a visible description of its own (the
+// lilaq previews get this for free from the plot's `title`; a bare Mermaid
+// diagram has no such title, so we add one here).
 #let mermaid-preview(caption, src, reference: none, scale: 1) = tablefigure(
   caption: caption,
   reference: reference,
@@ -182,7 +187,11 @@
   table-content: (
     table.header("Mermaid Markup", "Output"),
     align(horizon, box(width: 100%, raw(src, lang: "mermaid", block: true))),
-    box(width: 100%, mermaid-bw(src, scale: scale)),
+    box(width: 100%, align(center, {
+      mermaid-bw(src, scale: scale)
+      v(0.5em)
+      text(size: 0.85em, style: "italic", caption)
+    })),
   ),
 )
 

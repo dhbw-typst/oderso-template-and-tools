@@ -4,7 +4,8 @@
 
 #link("https://mermaid.js.org/intro/")[Mermaid] is a text-based diagram
 language: you describe a diagram in a few lines of markup and the renderer
-lays it out for you. The `merman` package ships a WebAssembly renderer, so the
+lays it out for you. The #link("https://typst.app/universe/package/merman/")[*merman*]
+package ships a WebAssembly renderer, so the
 diagrams are produced during compilation, with no browser or Node.js required.
 A single function call renders any Mermaid source:
 
