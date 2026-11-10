@@ -1,5 +1,5 @@
 #import "@preview/lilaq:0.6.0" as lq
-#import "visualization-helpers.typ": typst-preview, boxplot-figure
+#import "visualization-helpers.typ": typst-preview, boxplot-figure, heatmap-figure
 
 == Data-Driven Plots with lilaq
 
@@ -26,6 +26,7 @@ speeds in `x` and the braking distances in `y`, then hand them to `lq.plot`:
   xlabel: [Speed $x$], ylabel: [Distance $y$],
   lq.plot(x, y, color: black),
 )",
+  wrap-figure: true,
 )
 
 For a scatter plot the idea is the same, but the points need not follow a
@@ -43,6 +44,7 @@ size, and `lq.scatter` draws one marker per pair:
   xlabel: [Height $x$], ylabel: [Shoe size $y$],
   lq.scatter(x, y, color: black),
 )",
+  wrap-figure: true,
 )
 
 === Bar and Stem Plots
@@ -62,6 +64,7 @@ bar example compares the revenue of four quarters: `x` numbers the quarters,
   xlabel: [Quarter $x$], ylabel: [Revenue $y$],
   lq.bar(x, y, fill: luma(80%), stroke: black),
 )",
+  wrap-figure: true,
 )
 
 The stem plot below shows a discrete sequence: `x` is the index and `y` the
@@ -78,6 +81,7 @@ corresponding power of two ($y = 2^x$).
   xlabel: [Index $x$], ylabel: [Value $y$],
   lq.stem(x, y, color: black),
 )",
+  wrap-figure: true,
 )
 
 === Error Bars
@@ -103,33 +107,47 @@ data point. In this example `x` is the day, `y` the measured temperature, and
   xlabel: [Day $x$], ylabel: [Temp. $y$],
   lq.plot(x, y, yerr: err, color: black),
 )",
+  wrap-figure: true,
 )
 
 === Heatmaps and Contours
 
 For data over a 2D grid, `lq.colormesh(x, y, z)` draws a heatmap and
-`lq.contour(x, y, z)` draws level curves. `z` may be an explicit grid or a
-function `(x, y) => value`.
+`lq.contour(x, y, z)` draws level curves. A heatmap is useful whenever a value
+depends on two categories or coordinates at once and you want to spot the hot
+and cold spots at a glance, for example a correlation matrix, a classifier's
+confusion matrix, or activity over time.
+
+Assembling the colormesh, the axis ticks and the color-bar legend by hand is
+verbose, so this template provides a `heatmap-figure` helper. You pass a 2D
+array of values plus optional row and column labels, and it renders a numbered
+figure with a matching legend in the grayscale IEEE palette (a larger value is a
+darker cell). Here the data is a small table of commit counts per weekday and
+time of day, the same idea as the activity graph on a code-hosting site:
 
 #typst-preview(
-  "Colormesh with lilaq",
-  "#import \"@preview/lilaq:0.6.0\" as lq
-// z = sin(x)·cos(y) over a 40×40 grid.
-// `map` overrides lilaq's default Viridis colormap with a black-to-white
-// ramp so the heatmap stays legible in grayscale print (IEEE requirement:
-// no information encoded through color/hue alone).
-#lq.diagram(
-  width: 4cm, height: 3cm,
-  title: [sin(x)·cos(y)],
-  xlabel: [Position $x$], ylabel: [Position $y$],
-  lq.colormesh(
-    lq.linspace(-3, 3, num: 40),
-    lq.linspace(-3, 3, num: 40),
-    (x, y) => calc.sin(x) * calc.cos(y),
-    map: (luma(0%), luma(100%)),
+  "Heatmap with lilaq: commit activity by weekday and time of day",
+  "#import \"visualization-helpers.typ\": heatmap-figure
+// Rows are weekdays, columns are times of day; each cell is a commit count.
+#heatmap-figure(
+  [Commit activity],
+  (
+    (2, 5,  8, 3),   // Mon
+    (1, 6,  9, 4),   // Tue
+    (0, 4,  7, 2),   // Wed
+    (3, 7, 10, 5),   // Thu
+    (1, 3,  5, 1),   // Fri
   ),
+  xticks: ([night], [morn], [noon], [eve]),
+  yticks: ([Mon], [Tue], [Wed], [Thu], [Fri]),
+  xlabel: [Time of day], ylabel: [Weekday],
+  cbar-label: [Commits],
 )",
 )
+
+Under the hood the helper calls `lq.colormesh` for the cells and `lq.colorbar`
+for the legend. If your surface follows a formula rather than a fixed table,
+`lq.colormesh` also accepts a function `(x, y) => value` in place of the array.
 
 === Vector Fields
 
@@ -150,6 +168,7 @@ argument is a function returning a `(dx, dy)` vector for each grid point.
     (x, y) => (x + y, y - x),
   ),
 )",
+  wrap-figure: true,
 )
 
 === Boxplot with Hardcoded Values
@@ -223,6 +242,7 @@ The preview shows the loading code next to its output:
     median: 1.5pt + black, whisker: black,
     cap: black, outlier-stroke: black),
 )",
+  wrap-figure: true,
 )
 
 If you need the raw data elsewhere, you can still load it yourself: Typst's
