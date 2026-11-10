@@ -1,71 +1,71 @@
 # oderso-tools
 
-Typst-Vorlage für wissenschaftliche Arbeiten an der DHBW und für den IHK-Projektbericht, aufgebaut auf dem Paket [`dhbw-oderso`](https://typst.app/universe/package/dhbw-oderso/). Das Repository bündelt drei fertige Einstiegspunkte, gemeinsame Kapitel und Beispiele, sodass du nur noch Inhalt schreiben musst.
+Typst template for academic writing at the DHBW and for the IHK project report, built on top of the [`dhbw-oderso`](https://typst.app/universe/package/dhbw-oderso/) package. This repository bundles three ready-made entry points, shared chapters and examples, so you only need to write content.
 
-## Voraussetzungen
+## Prerequisites
 
-- [Typst](https://github.com/typst/typst) **0.14.2** (das Projekt ist mit dieser Compiler-Version getestet).
-- Internetzugang beim ersten Kompilieren: Pakete aus dem Typst-Universe werden automatisch heruntergeladen und danach lokal zwischengespeichert.
+- [Typst](https://github.com/typst/typst) **0.14.2** (the project is tested with this compiler version).
+- Internet access on the first compile: packages from the Typst Universe are downloaded automatically and cached locally afterwards.
 
-Installation von Typst (macOS):
+Installing Typst (macOS):
 
 ```sh
 brew install typst
 ```
 
-## Die drei Einstiegspunkte
+## The three entry points
 
-Jede dieser Dateien ist ein eigenständiges Dokument. Welche du nimmst, hängt von der Art deiner Arbeit ab:
+Each of these files is a standalone document. Which one you pick depends on the kind of work you are writing:
 
-| Datei | Verwendung | Adapter |
+| File | Use case | Adapter |
 | --- | --- | --- |
-| `main-dhbw-ka.typ` | DHBW-Arbeit, Standort Karlsruhe | `dhbw-ka-adapter` |
-| `main-dhbw-ma.typ` | DHBW-Arbeit, Standort Mannheim | `dhbw-ma-adapter` |
-| `main-ihk.typ` | IHK-Projektbericht | `ihk-adapter` |
+| `main-dhbw-ka.typ` | DHBW thesis, Karlsruhe campus | `dhbw-ka-adapter` |
+| `main-dhbw-ma.typ` | DHBW thesis, Mannheim campus | `dhbw-ma-adapter` |
+| `main-ihk.typ` | IHK project report | `ihk-adapter` |
 
-Die Einstiegspunkte unterscheiden sich im Wesentlichen nur im Adapter (Deckblatt, Kopfzeilen, rechtliche Formulierungen). Titel, Autor, AI-Acknowledgement und weitere Metadaten konfigurierst du im Kopf der jeweiligen Datei im `#show: ...adapter.with(...)`-Block.
+The entry points differ essentially only in their adapter (cover page, headers, legal wording). Title, author, AI acknowledgement and other metadata are configured in the header of each file inside the `#show: ...adapter.with(...)` block.
 
-## Kompilieren
+## Compiling
 
-Einmalig ein PDF erzeugen:
+Produce a PDF once:
 
 ```sh
 typst compile main-dhbw-ka.typ
 ```
 
-Während des Schreibens mit Live-Vorschau (Datei wird bei jeder Änderung neu gebaut):
+Write with a live preview (the file is rebuilt on every change):
 
 ```sh
 typst watch main-dhbw-ka.typ
 ```
 
-Ersetze `main-dhbw-ka.typ` durch den Einstiegspunkt, den du verwendest.
+Replace `main-dhbw-ka.typ` with the entry point you are using.
 
-## Projektstruktur
+## Project structure
 
 ```
 .
-├── main-dhbw-ka.typ      # Einstiegspunkt DHBW Karlsruhe
-├── main-dhbw-ma.typ      # Einstiegspunkt DHBW Mannheim
-├── main-ihk.typ          # Einstiegspunkt IHK
-├── glossary.typ          # Abkürzungen und Glossareinträge
-├── appendix.typ          # Anhang-Definition
-├── refs.bib              # Literaturquellen (BibTeX)
-├── chapters/             # Fachkapitel (per #include eingebunden)
+├── main-dhbw-ka.typ      # Entry point DHBW Karlsruhe
+├── main-dhbw-ma.typ      # Entry point DHBW Mannheim
+├── main-ihk.typ          # Entry point IHK
+├── glossary.typ          # Abbreviations and glossary entries
+├── appendix.typ          # Appendix definition
+├── refs.bib              # Bibliography sources (BibTeX)
+├── chapters/             # Content chapters (included via #include)
 │   ├── introduction.typ
 │   ├── basic_formatting.typ
 │   ├── advanced_elements.typ
 │   ├── references_citations.typ
 │   ├── reference_management.typ
 │   └── conclusion.typ
-├── misc/                 # Danksagung, Abstracts (de/en)
-├── assets/               # Logos, Signaturen, Beispieldaten
-└── appendix/             # Anhang-Inhalte (Tabellen etc.)
+├── misc/                 # Acknowledgements, abstracts (de/en)
+├── assets/               # Logos, signatures, sample data
+└── appendix/             # Appendix content (tables etc.)
 ```
 
-## Wie der Inhalt eingebunden wird
+## How content is wired in
 
-Die Fachkapitel liegen in `chapters/` und werden am Ende jedes Einstiegspunkts per `#include` eingebunden, zum Beispiel:
+The content chapters live in `chapters/` and are pulled into each entry point via `#include` at the end of the file, for example:
 
 ```typ
 #include "chapters/introduction.typ"
@@ -73,24 +73,24 @@ Die Fachkapitel liegen in `chapters/` und werden am Ende jedes Einstiegspunkts p
 // ...
 ```
 
-Ein neues Kapitel fügst du hinzu, indem du eine Datei unter `chapters/` anlegst und in **jedem** Einstiegspunkt, in dem es erscheinen soll, eine `#include`-Zeile ergänzt.
+To add a new chapter, create a file under `chapters/` and add an `#include` line in **every** entry point where it should appear.
 
-### Eigenständig kompilierbare Kapitel
+### Standalone-compilable chapters
 
-Kapitel, die eigene Pakete oder Hilfsfunktionen brauchen, importieren diese selbst am Dateianfang. Dadurch lässt sich ein einzelnes Kapitel auch allein bauen, ohne das komplette Dokument zu kompilieren:
+Chapters that need their own packages or helper functions import those themselves at the top of the file. This lets you build a single chapter on its own, without compiling the whole document:
 
 ```sh
-typst compile --root . chapters/<kapitel>.typ
+typst compile --root . chapters/<chapter>.typ
 ```
 
-Das `--root .` ist wichtig, wenn das Kapitel auf Dateien außerhalb des `chapters/`-Ordners zugreift (zum Beispiel `assets/`). Ohne das Flag verweigert Typst den Zugriff auf Pfade oberhalb der Quelldatei.
+The `--root .` matters when a chapter accesses files outside the `chapters/` folder (for example `assets/`). Without the flag, Typst refuses access to paths above the source file.
 
-## Konventionen
+## Conventions
 
-- **Sprache:** Code, Kommentare, Variablen- und Funktionsnamen sind durchgängig auf Englisch. Deutsch nur in sichtbaren Textinhalten der Arbeit.
-- **Externe Pakete** werden über `@preview/<name>:<version>` eingebunden und sind an die installierte Typst-Version gebunden. Achte beim Hinzufügen eines Pakets auf die vom Paket geforderte Mindest-Compiler-Version.
-- **Literatur** pflegst du in `refs.bib` und zitierst sie im Text mit `@key`.
+- **Language:** code, comments, variable and function names are consistently in English. German only in the visible text content of the thesis.
+- **External packages** are imported via `@preview/<name>:<version>` and are tied to the installed Typst version. When adding a package, check the minimum compiler version it requires.
+- **Bibliography** is maintained in `refs.bib` and cited in the text with `@key`.
 
-## Lizenz
+## License
 
-Siehe Repository bzw. das zugrunde liegende `dhbw-oderso`-Paket.
+See the repository or the underlying `dhbw-oderso` package.
