@@ -1,8 +1,23 @@
-#import "basic_formatting.typ": typst-preview
-#import "@preview/dhbw-oderso:2.4.1": caption-with-source
+#import "@preview/dhbw-oderso:2.4.1": tablefigure, caption-with-source
 #import "@preview/lilaq:0.6.0" as lq
 #import "@preview/cetz:0.4.2"
 #import "@preview/pintorita:0.1.4"
+
+// Local copy of the `typst-preview` helper (originally in basic_formatting.typ)
+// so this chapter also compiles standalone without the template entry point.
+#let typst-preview(caption, typst-code) = tablefigure(
+  caption: caption,
+  columns: 2,
+  align: (_, row) => if row == 0 { center } else { horizon + left },
+  table-content: (
+    table.header("Typst Code", "Output"),
+    align(horizon, box(width: 100%, raw(typst-code, lang: "typ", block: true))),
+    box(width: 100%, {
+      set heading(outlined: false)
+      eval(typst-code, mode: "markup")
+    }),
+  ),
+)
 
 = Visualization
 
@@ -139,13 +154,15 @@ argument is a function returning a `(dx, dy)` vector for each grid point.
 A *boxplot* (box-and-whisker plot) summarizes a dataset's distribution using
 five statistics: the minimum/maximum (whisker endpoints, excluding outliers),
 the quartiles *Q1* and *Q3* (box edges), and the *median* (line inside the
-box). Any value further than $1.5 times "IQR"$ (interquartile range
+box). Any value further than $1.5 dot "IQR"$ (interquartile range
 $= "Q3" - "Q1"$) from the box is drawn as an individual outlier point.
 
 In the simplest case, the data is written directly into the source file:
 
 #figure(
   lq.diagram(
+    width: 4.5cm,
+    height: 6cm,
     title: "Sample Boxplot (hardcoded)",
     xlabel: "Group",
     ylabel: "Value",
@@ -190,6 +207,8 @@ in `chapters/`, so we go up one level with `../assets/...`:
 
 #figure(
   lq.diagram(
+    width: 4.5cm,
+    height: 6cm,
     title: "Sample Boxplot (from JSON)",
     xlabel: "Group",
     ylabel: "Value",
@@ -242,7 +261,22 @@ Pintorita turns textual diagram markup into rendered diagrams. You enable it
 once with a `show` rule that routes `pintora` code blocks through
 `pintorita.render`, then write the diagram as a normal fenced code block.
 
-#show raw.where(lang: "pintora"): it => pintorita.render(it.text)
+By default Pintorita's `larkLight` style paints a solid light-blue canvas
+(`#EDF4FF`) behind the diagram. For a cleaner, more professional look on a
+white page we render to SVG, strip that full-size background rectangle, and
+embed the result — so the diagram sits on a transparent background.
+
+#let pintora-transparent(src) = {
+  let svg = pintorita.render-svg(src, style: "larkLight")
+  // Remove the leading background <path ... fill="#EDF4FF" ...></path>.
+  svg = svg.replace(
+    regex("<path[^>]*fill=\"#EDF4FF\"[^>]*>(</path>)?"),
+    "",
+  )
+  image(bytes(svg))
+}
+
+#show raw.where(lang: "pintora"): it => pintora-transparent(it.text)
 
 #figure(
   kind: image,

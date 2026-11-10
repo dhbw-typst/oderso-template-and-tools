@@ -101,4 +101,4 @@
 #include "chapters/references_citations.typ"
 #include "chapters/reference_management.typ"
 #include "chapters/conclusion.typ"
-#include "chapters/boxplot.typ"
+#include "chapters/visualization.typ"
