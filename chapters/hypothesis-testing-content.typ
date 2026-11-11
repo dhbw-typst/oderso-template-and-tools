@@ -90,6 +90,20 @@ the target value.
   text ($500.14$, $1.704$, $0.26$) are likewise specific to this example.
 ]
 
+#block(
+  fill: luma(95%),
+  inset: 8pt,
+  radius: 3pt,
+  width: 100%,
+)[
+  *Visualize and experiment.* To build an intuition for how the test statistic,
+  the critical value and the rejection region relate to one another, try this
+  interactive #link("https://www.geogebra.org/m/quRn8sPP")[one-sample t-test
+  worksheet on GeoGebra]. You can drag the sample mean and significance level
+  and watch how the t-distribution, the acceptance region and the decision
+  change in real time.
+]
+
 == Checking Normality with a QQ-plot
 
 The t-test assumes the data are roughly normally distributed. A quick visual
