@@ -99,4 +99,5 @@
 #include "chapters/advanced_elements.typ"
 #include "chapters/references_citations.typ"
 #include "chapters/reference_management.typ"
+#include "chapters/hypothesis-testing.typ"
 #include "chapters/conclusion.typ"
