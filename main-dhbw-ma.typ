@@ -126,5 +126,4 @@
 #include "chapters/references_citations.typ"
 #include "chapters/reference_management.typ"
 #include "chapters/visualization.typ"
-#include "chapters/hypothesis-testing.typ"
 #include "chapters/conclusion.typ"
