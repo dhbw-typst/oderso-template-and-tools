@@ -1,4 +1,4 @@
-#import "@preview/dhbw-oderso:2.4.1": tablefigure, caption-with-source
+#import "@preview/dhbw-oderso:2.4.2": tablefigure, caption-with-source
 #import "@preview/merman:0.1.0": mermaid, mermaid-svg
 #import "@preview/diagraph:0.3.8": render as _diagraph-render
 #import "@preview/lilaq:0.6.0" as lq

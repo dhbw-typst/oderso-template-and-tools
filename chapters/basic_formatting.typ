@@ -1,4 +1,4 @@
-#import "@preview/dhbw-oderso:2.4.1": tablefigure
+#import "@preview/dhbw-oderso:2.4.2": tablefigure
 
 = Basic Formatting
 
