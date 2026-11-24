@@ -1,5 +1,5 @@
 #import "basic_formatting.typ": typst-preview
-#import "@preview/dhbw-oderso:2.4.1": caption-with-source
+#import "@preview/dhbw-oderso:2.4.2": caption-with-source
 
 = Advanced Elements
 

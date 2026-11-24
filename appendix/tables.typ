@@ -1,4 +1,4 @@
-#import "@preview/dhbw-oderso:2.4.1": (
+#import "@preview/dhbw-oderso:2.4.2": (
   styled-table, table-hline-spaced, tablefigure, tablefigure-raw,
 )
 
