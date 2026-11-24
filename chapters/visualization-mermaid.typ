@@ -1,5 +1,5 @@
 #import "visualization-helpers.typ": mermaid-preview, mermaid-figure, typst-preview
-#import "@preview/merman:0.1.0": mermaid
+#import "@preview/merman:0.6.0": mermaid
 
 == Diagrams with Mermaid
 
@@ -11,7 +11,7 @@ diagrams are produced during compilation, with no browser or Node.js required.
 A single function call renders any Mermaid source:
 
 ```typ
-#import "@preview/merman:0.1.0": mermaid
+#import "@preview/merman:0.6.0": mermaid
 #mermaid("flowchart TD
   A[Start] --> B[Stop]", background: none)
 ```
