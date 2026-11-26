@@ -20,7 +20,7 @@ jobs:
           - main-dhbw-ma
           - main-ihk
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Typst
         uses: typst-community/setup-typst@v4
