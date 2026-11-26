@@ -29,7 +29,7 @@ jobs:
         run: typst compile "${{ matrix.document }}.typ" "${{ matrix.document }}.pdf"
 
       - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.document }}
           path: ${{ matrix.document }}.pdf
