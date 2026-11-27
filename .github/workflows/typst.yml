@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Typst
-        uses: typst-community/setup-typst@v4
+        uses: typst-community/setup-typst@v5
 
       - name: Compile ${{ matrix.document }}.typ
         run: typst compile "${{ matrix.document }}.typ" "${{ matrix.document }}.pdf"
